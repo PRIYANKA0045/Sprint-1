@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Admin Dashboard</title>
+    <style>
+        :root {
+            --bg-main: #0a0c10;
+            --bg-panel: #13161f;
+            --bg-hover: #1e2230;
+            --border-color: #262936;
+            --text-main: #f1f5f9;
+            --text-muted: #8b92a5;
+            --primary: #7b2cbf;
+            --easy-color: #10b981;
+            --medium-color: #f59e0b;
+            --danger-color: #ef4444;
+            --admin-accent: #f43f5e; /* Rose color for admin distinction */
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; }
+        .logo { display: flex; align-items: center; gap: 10px; padding: 0 20px; font-size: 20px; font-weight: bold; margin-bottom: 30px; color: var(--text-main); text-decoration: none; }
+        .nav-list { list-style: none; flex: 1; }
+        .nav-item { padding: 12px 20px; display: flex; align-items: center; gap: 15px; color: var(--text-muted); font-size: 14px; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .nav-item:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        .nav-item.active { background-color: rgba(244, 63, 94, 0.1); color: var(--text-main); border-left: 3px solid var(--admin-accent); }
+
+        /* Main Content */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .top-nav { height: 60px; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; position: sticky; top: 0; z-index: 10; }
+        .user-controls { display: flex; align-items: center; gap: 20px; }
+        .admin-badge { background-color: rgba(244, 63, 94, 0.2); color: var(--admin-accent); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid var(--admin-accent); }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background-color: var(--primary); display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
+
+        /* Page Layout */
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .page-header { margin-bottom: 25px; }
+        .page-title { font-size: 28px; font-weight: bold; margin-bottom: 5px; color: var(--text-main); }
+        .page-subtitle { color: var(--text-muted); font-size: 14px; }
+
+        /* Analytics Grid */
+        .analytics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; }
+        .stat-header { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 13px; font-weight: 500; margin-bottom: 10px; }
+        .stat-value { font-size: 28px; font-weight: bold; color: var(--text-main); margin-bottom: 5px; }
+        .stat-trend { font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        .trend-up { color: var(--easy-color); }
+        .trend-down { color: var(--danger-color); }
+
+        /* Admin Tabs */
+        .admin-tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 12px 20px; font-size: 14px; font-weight: 500; cursor: pointer; position: relative; }
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active { color: var(--admin-accent); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background-color: var(--admin-accent); }
+
+        /* Toolbar */
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .search-box { background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 15px; display: flex; align-items: center; width: 300px; }
+        .search-box input { background: transparent; border: none; color: var(--text-main); outline: none; width: 100%; font-size: 13px; margin-left: 10px; }
+        .btn-add { background-color: var(--admin-accent); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+        /* Tables */
+        .panel { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .table-container { background-color: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 16px 20px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 16px 20px; font-size: 13px; border-bottom: 1px solid var(--border-color); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: var(--bg-hover); }
+
+        .status-pill { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .status-active { background-color: rgba(16, 185, 129, 0.1); color: var(--easy-color); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .status-banned { background-color: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.2); }
+        
+        .role-admin { color: var(--admin-accent); font-weight: 600; }
+        .role-user { color: var(--text-main); }
+
+        .action-btns { display: flex; gap: 8px; }
+        .btn-icon { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 28px; height: 28px; border-radius: 4px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; }
+        .btn-icon:hover { background: var(--bg-hover); color: var(--text-main); }
+        .btn-icon.delete:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border-color: var(--danger-color); }
+        .btn-icon.edit:hover { background: rgba(123, 44, 191, 0.1); color: var(--primary); border-color: var(--primary); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="index.html" class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 19.5L12 23.5L15 19.5" fill="#f77f00"/>
+                <path d="M10.5 19.5L12 21.5L13.5 19.5" fill="#ffb703"/>
+                <path d="M12 2C12 2 5 6.5 5 14.5C5 17.5 7 20 7 20L12 18L17 20C17 20 19 17.5 19 14.5C19 6.5 12 2 12 2Z" fill="url(#logo-grad)"/>
+                <path d="M5 14.5L2 18V21L7 20" fill="url(#logo-grad)"/>
+                <path d="M19 14.5L22 18V21L17 20" fill="url(#logo-grad)"/>
+                <circle cx="12" cy="11" r="2.5" fill="#13161f" stroke="#f1f5f9" stroke-width="1.5"/>
+                <defs>
+                    <linearGradient id="logo-grad" x1="12" y1="2" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#9d4edd"/><stop offset="1" stop-color="#5b21b6"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            CodeQuest
+        </a>
+        
+        <ul class="nav-list">
+            <a href="dashboard.html" class="nav-item"><li>📚 Courses</li></a>
+            <a href="practice.html" class="nav-item"><li>📄 Practice Problems</li></a>
+            <a href="leaderboard.html" class="nav-item"><li>🏆 Leaderboard</li></a>
+            <a href="profile.html" class="nav-item"><li>👤 Profile</li></a>
+            <a href="settings.html" class="nav-item"><li>⚙️ Settings</li></a>
+        </ul>
+
+        <!-- Bottom Admin Link -->
+        <div style="padding: 0 10px;">
+            <div class="nav-item active" style="border-radius: 8px;">
+                <span>🛡️ Control Panel</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="top-nav">
+            <div style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Admin Dashboard</div>
+            <div class="user-controls">
+                <span class="admin-badge">System Admin</span>
+                <div class="avatar">CQ</div>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="page-header">
+                <h1 class="page-title">Platform Management</h1>
+                <p class="page-subtitle">Oversee users, content, and system analytics.</p>
+            </div>
+
+            <!-- Analytics Overview -->
+            <div class="analytics-grid">
+                <div class="stat-card">
+                    <div class="stat-header"><span>Total Users</span> <span>👥</span></div>
+                    <div class="stat-value">12,450</div>
+                    <div class="stat-trend trend-up">↑ 12% this month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><span>Active Problems</span> <span>📄</span></div>
+                    <div class="stat-value">793</div>
+                    <div class="stat-trend trend-up">↑ 5 added this week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><span>Submissions (24h)</span> <span>🚀</span></div>
+                    <div class="stat-value">45,219</div>
+                    <div class="stat-trend trend-down">↓ 3% from yesterday</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><span>Server Load</span> <span>⚡</span></div>
+                    <div class="stat-value">24%</div>
+                    <div class="stat-trend" style="color: var(--text-muted);">Stable</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-target="panel-users">Users</button>
+                <button class="tab-btn" data-target="panel-content">Content (Problems & Courses)</button>
+            </div>
+
+            <!-- Users Panel -->
+            <div class="panel active" id="panel-users">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span style="color: var(--text-muted);">🔍</span>
+                        <input type="text" placeholder="Search by username or email...">
+                    </div>
+                    <button class="btn-add">Add User</button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>XP / Rank</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="color: var(--text-muted);">#U8821</td>
+                                <td>
+                                    <div style="font-weight: 500;">code_quester</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);">quester@email.com</div>
+                                </td>
+                                <td class="role-admin">Admin</td>
+                                <td>4,858 XP<br><span style="font-size: 11px; color: var(--text-muted);">Rank: 127</span></td>
+                                <td><span class="status-pill status-active">Active</span></td>
+                                <td>
+                                    <div class="action-btns" style="justify-content: flex-end;">
+                                        <button class="btn-icon edit" title="Edit User">✏️</button>
+                                        <button class="btn-icon delete" title="Ban User">🚫</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">#U9044</td>
+                                <td>
+                                    <div style="font-weight: 500;">alex_dev</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);">alex@dev.com</div>
+                                </td>
+                                <td class="role-user">User</td>
+                                <td>2,568 XP<br><span style="font-size: 11px; color: var(--text-muted);">Rank: 1</span></td>
+                                <td><span class="status-pill status-active">Active</span></td>
+                                <td>
+                                    <div class="action-btns" style="justify-content: flex-end;">
+                                        <button class="btn-icon edit">✏️</button>
+                                        <button class="btn-icon delete">🚫</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">#U1005</td>
+                                <td>
+                                    <div style="font-weight: 500;">spammer_99</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);">fake@spam.com</div>
+                                </td>
+                                <td class="role-user">User</td>
+                                <td>0 XP<br><span style="font-size: 11px; color: var(--text-muted);">Rank: N/A</span></td>
+                                <td><span class="status-pill status-banned">Banned</span></td>
+                                <td>
+                                    <div class="action-btns" style="justify-content: flex-end;">
+                                        <button class="btn-icon edit">✏️</button>
+                                        <button class="btn-icon delete" title="Delete Account" style="color: var(--danger-color); border-color: var(--danger-color);">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Content Panel -->
+            <div class="panel" id="panel-content">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span style="color: var(--text-muted);">🔍</span>
+                        <input type="text" placeholder="Search problems or courses...">
+                    </div>
+                    <button class="btn-add">Create Problem</button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Difficulty</th>
+                                <th>Success Rate</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="color: var(--text-muted);">#P001</td>
+                                <td style="font-weight: 500;">Two Sum</td>
+                                <td>Arrays, Hash Table</td>
+                                <td style="color: var(--easy-color);">Easy</td>
+                                <td>51.2%</td>
+                                <td>
+                                    <div class="action-btns" style="justify-content: flex-end;">
+                                        <button class="btn-icon edit">✏️</button>
+                                        <button class="btn-icon delete">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">#P042</td>
+                                <td style="font-weight: 500;">Trapping Rain Water</td>
+                                <td>Arrays, Two Pointers</td>
+                                <td style="color: var(--danger-color);">Hard</td>
+                                <td>61.0%</td>
+                                <td>
+                                    <div class="action-btns" style="justify-content: flex-end;">
+                                        <button class="btn-icon edit">✏️</button>
+                                        <button class="btn-icon delete">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">#C101</td>
+                                <td style="font-weight: 500;">[Course] Intro to Arrays</td>
+                                <td>Curriculum Lesson</td>
+                                <td style="color: var(--easy-color);">Beginner</td>
+                                <td>N/A</td>
+                                <td>
+                                    <div class="action-btns" style="justify-content: flex-end;">
+                                        <button class="btn-icon edit">✏️</button>
+                                        <button class="btn-icon delete">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Tab switching logic
+        const tabs = document.querySelectorAll('.tab-btn');
+        const panels = document.querySelectorAll('.panel');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active classes
+                tabs.forEach(t => t.classList.remove('active'));
+                panels.forEach(p => p.classList.remove('active'));
+
+                // Add active class to clicked tab and target panel
+                tab.classList.add('active');
+                const targetId = tab.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
