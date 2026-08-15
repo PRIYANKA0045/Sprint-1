@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Dashboard</title>
+    <style>
+        :root {
+            --bg-main: #0a0c10;
+            --bg-panel: #13161f;
+            --bg-hover: #1e2230;
+            --border-color: #262936;
+            --text-main: #f1f5f9;
+            --text-muted: #8b92a5;
+            --primary: #7b2cbf;
+            --easy-color: #10b981;
+            --medium-color: #f59e0b;
+            --hard-color: #ef4444;
+            --card-purple: #4c1d95;
+            --card-red: #7f1d1d;
+            --card-blue: #1e3a8a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .menu-header {
+            font-size: 14px;
+            color: var(--text-main);
+            padding: 0 20px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .nav-list {
+            list-style: none;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background-color: #1a1e2b;
+            color: var(--text-main);
+            border-left: 3px solid var(--primary);
+        }
+
+        .stats-section {
+            padding: 0 20px;
+            margin-top: auto;
+        }
+
+        .stats-header {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .stat-row {
+            margin-bottom: 15px;
+        }
+
+        .stat-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .stat-labels .easy { color: var(--easy-color); }
+        .stat-labels .medium { color: var(--medium-color); }
+        .stat-labels .hard { color: var(--hard-color); }
+        .stat-labels .count { color: var(--text-main); }
+
+        .progress-bar {
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        /* Main Content Styles */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            height: 60px;
+            background-color: var(--bg-main);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .top-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .top-links a:hover, .top-links a.active {
+            color: var(--text-main);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-main);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Content Body */
+        .content {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* Course Cards */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-1 { background: linear-gradient(135deg, var(--card-purple), #2e1065); border: 1px solid #5b21b6; }
+        .card-2 { background: linear-gradient(135deg, var(--card-red), #450a0a); border: 1px solid #991b1b; }
+        .card-3 { background: linear-gradient(135deg, var(--card-blue), #172554); border: 1px solid #1e40af; }
+
+        .card-icon {
+            font-size: 32px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* Sub Navigation */
+        .sub-nav {
+            display: flex;
+            gap: 30px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .sub-nav-item {
+            padding-bottom: 10px;
+            color: var(--text-muted);
+            font-size: 14px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sub-nav-item.active {
+            color: var(--text-main);
+        }
+
+        .sub-nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--easy-color);
+        }
+
+        /* Progress Banner */
+        .progress-banner {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .banner-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .banner-bar-bg {
+            width: 80%;
+            height: 6px;
+            background-color: var(--bg-main);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .banner-bar-fill {
+            width: 19%;
+            height: 100%;
+            background-color: var(--easy-color);
+        }
+
+        .banner-info {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            max-width: 600px;
+            margin-top: 5px;
+        }
+
+        /* Table Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .search-box {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            width: 250px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            outline: none;
+            width: 100%;
+            font-size: 13px;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            border-radius: 6px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .icon-btn:hover {
+            color: var(--text-main);
+            background-color: var(--bg-hover);
+        }
+
+        /* Problems Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 12px 15px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-panel);
+        }
+
+        tr:nth-child(even) td {
+            background-color: rgba(19, 22, 31, 0.5);
+        }
+
+        tr:hover td {
+            background-color: var(--bg-hover);
+        }
+
+        .problem-link {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .problem-link:hover {
+            color: var(--primary);
+        }
+
+        .status-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--text-muted);
+            border-radius: 3px;
+            display: inline-block;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .status-checkbox.checked {
+            background-color: var(--easy-color);
+            border-color: var(--easy-color);
+        }
+
+        .status-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            position: absolute;
+            top: -1px;
+            left: 2px;
+        }
+
+        .star-icon {
+            color: var(--medium-color);
+            cursor: pointer;
+        }
+
+        .diff-easy {
+            color: var(--easy-color);
+        }
+        
+        .play-icon {
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .play-icon:hover {
+            color: var(--text-main);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="index.html" class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 19.5L12 23.5L15 19.5" fill="#f77f00"/>
+                <path d="M10.5 19.5L12 21.5L13.5 19.5" fill="#ffb703"/>
+                <path d="M12 2C12 2 5 6.5 5 14.5C5 17.5 7 20 7 20L12 18L17 20C17 20 19 17.5 19 14.5C19 6.5 12 2 12 2Z" fill="url(#logo-grad)"/>
+                <path d="M5 14.5L2 18V21L7 20" fill="url(#logo-grad)"/>
+                <path d="M19 14.5L22 18V21L17 20" fill="url(#logo-grad)"/>
+                <!-- Note: Window color matches sidebar background -->
+                <circle cx="12" cy="11" r="2.5" fill="#13161f" stroke="#f1f5f9" stroke-width="1.5"/>
+                <defs>
+                    <linearGradient id="logo-grad" x1="12" y1="2" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#9d4edd"/><stop offset="1" stop-color="#5b21b6"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            CodeQuest
+        </a>
+        
+        <div class="menu-header">
+            Menu <span>←</span>
+        </div>
+        
+        <div class="nav-list">
+            <a href="dashboard.html" class="nav-item active">📚 Courses (Dashboard)</a>
+            <a href="practice.html" class="nav-item">📄 Practice Problems</a>
+            <a href="#" class="nav-item">📝 Quizzes</a>
+            <a href="#" class="nav-item">📊 Stats</a>
+            <a href="leaderboard.html" class="nav-item">🏆 Leaderboard</a>
+            <a href="achievements.html" class="nav-item">🏅 Achievements</a>
+            <a href="streak.html" class="nav-item">🔥 Streak</a>
+            <a href="profile.html" class="nav-item">👤 Profile</a>
+            <a href="settings.html" class="nav-item">⚙️ Settings</a>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-header">Stats</div>
+            
+            <div class="stat-row">
+                <div class="stat-labels">
+                    <span class="easy">Easy</span>
+                    <span class="count">60 / 192</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 31%; background-color: var(--easy-color);"></div>
+                </div>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-labels">
+                    <span class="medium">Medium</span>
+                    <span class="count">80 / 468</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 17%; background-color: var(--medium-color);"></div>
+                </div>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-labels">
+                    <span class="hard">Hard</span>
+                    <span class="count">11 / 113</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 9%; background-color: var(--hard-color);"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+        
+        <!-- Top Navigation -->
+        <header class="top-nav">
+            <div class="top-links">
+                <a href="dashboard.html" class="active">Courses</a>
+                <a href="practice.html">Practice</a>
+                <a href="roadmap.html">Roadmap</a>
+            </div>
+            <div class="auth-buttons">
+                <button class="btn" onclick="window.location.href='login.html'">Login</button>
+                <button class="btn btn-primary" onclick="window.location.href='signup.html'">Sign Up</button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="content">
+            <h1 class="page-title">Courses</h1>
+
+            <div class="cards-container">
+                <a href="lesson.html" class="card card-1">
+                    <div class="card-icon">🧗</div>
+                    <div class="card-title">Algorithms & Data<br>Structures for<br>Beginners</div>
+                </a>
+                <a href="#" class="card card-2">
+                    <div class="card-icon">💡</div>
+                    <div class="card-title">Advanced<br>Algorithms</div>
+                </a>
+                <a href="#" class="card card-3">
+                    <div class="card-icon">⚙️</div>
+                    <div class="card-title">System Design<br>for Beginners</div>
+                </a>
+            </div>
+
+            <div class="sub-nav">
+                <div class="sub-nav-item active">Core Skills</div>
+                <div class="sub-nav-item">LeetCode All</div>
+            </div>
+
+            <div class="progress-banner">
+                <div class="banner-text">151 / 793</div>
+                <div class="banner-bar-bg">
+                    <div class="banner-bar-fill"></div>
+                </div>
+                <div class="banner-info">
+                    Solve one core skills list of the problems for a solid foundation. It's not exhaustive, but it is useful for tech interview preparation.
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-box">
+                    <span style="margin-right: 10px; color: var(--text-muted);">🔍</span>
+                    <input type="text" placeholder="Search">
+                </div>
+                <div class="toolbar-actions">
+                    <button class="icon-btn">🎲</button>
+                    <button class="icon-btn">⚙️</button>
+                    <button class="icon-btn">❓</button>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">Status</th>
+                        <th style="width: 50px;">Star</th>
+                        <th>Problem</th>
+                        <th style="width: 120px;">Difficulty</th>
+                        <th style="width: 80px;">Solution</th>
+                    </tr>
+                </thead>
+                <tbody id="problem-list">
+                    <!-- Rows generated by JS for interactivity -->
+                </tbody>
+            </table>
+
+        </main>
+    </div>
+
+    <script>
+        // Data mirroring the design's table
+        const problems = [
+            { status: true, star: true, title: "Score of a String", diff: "Easy", hasVideo: true },
+            { status: true, star: false, title: "Concatenation of Array", diff: "Easy", hasVideo: true },
+            { status: true, star: true, title: "Kids With the Greatest Number of Candies", diff: "Easy", hasVideo: true },
+            { status: true, star: true, title: "Remove Duplicates from Sorted Array", diff: "Easy", hasVideo: true },
+            { status: true, star: true, title: "Best Time to Buy and Sell Stock", diff: "Easy", hasVideo: false }
+        ];
+
+        const tbody = document.getElementById('problem-list');
+
+        // Render Table
+        problems.forEach((prob, index) => {
+            const tr = document.createElement('tr');
+            
+            tr.innerHTML = `
+                <td>
+                    <div class="status-checkbox ${prob.status ? 'checked' : ''}" onclick="this.classList.toggle('checked')"></div>
+                </td>
+                <td>
+                    <span class="star-icon" onclick="this.style.color = this.style.color === 'var(--text-muted)' ? 'var(--medium-color)' : 'var(--text-muted)'">
+                        ${prob.star ? '⭐' : '<span style="color: var(--text-muted)">☆</span>'}
+                    </span>
+                </td>
+                <td><a href="challenge.html" class="problem-link">${prob.title}</a></td>
+                <td class="diff-easy">${prob.diff}</td>
+                <td>
+                    ${prob.hasVideo ? '<span class="play-icon">▶</span>' : ''}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    </script>
+</body>
+</html>
