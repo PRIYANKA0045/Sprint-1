@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Challenge</title>
+    <style>
+        /* Reusing Core Theme Variables */
+        :root {
+            --bg-main: #0a0c10;
+            --bg-panel: #13161f;
+            --bg-hover: #1e2230;
+            --border-color: #262936;
+            --text-main: #f1f5f9;
+            --text-muted: #8b92a5;
+            --primary: #7b2cbf;
+            --easy-color: #10b981;
+            --editor-bg: #0d1017;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar & Nav (Condensed for brevity, same as Dashboard) */
+        .sidebar { width: 60px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 20px 0; flex-shrink: 0; z-index: 20; }
+        .logo { margin-bottom: 30px; }
+        .nav-item { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; color: var(--text-muted); cursor: pointer; border-radius: 8px; margin-bottom: 10px; }
+        .nav-item:hover, .nav-item.active { background-color: var(--bg-hover); color: var(--text-main); }
+        
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-nav { height: 60px; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        
+        /* Challenge Split Layout */
+        .challenge-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Left Panel: Problem Description */
+        .problem-panel { flex: 1; padding: 25px; overflow-y: auto; border-right: 1px solid var(--border-color); }
+        .breadcrumb { font-size: 13px; color: var(--text-muted); margin-bottom: 15px; }
+        .breadcrumb span { color: var(--text-main); }
+        .problem-title { font-size: 22px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .difficulty-badge { font-size: 12px; padding: 3px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.1); color: var(--easy-color); border: 1px solid var(--easy-color); }
+        
+        .problem-body { font-size: 14px; line-height: 1.6; color: #d1d5db; margin-top: 20px; }
+        .problem-body pre { background-color: var(--bg-panel); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin: 15px 0; font-family: monospace; font-size: 13px; }
+        
+        /* Right Panel: Code Editor */
+        .editor-panel { flex: 1; display: flex; flex-direction: column; background-color: var(--editor-bg); }
+        .editor-toolbar { height: 50px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; background-color: var(--bg-panel); }
+        
+        .lang-select { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 5px 10px; border-radius: 4px; font-size: 12px; outline: none; }
+        .editor-actions { display: flex; gap: 10px; }
+        .btn-run { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 15px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+        .btn-submit { background: var(--easy-color); color: #000; border: none; padding: 6px 15px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        
+        .code-area { flex: 1; padding: 20px; font-family: 'Consolas', monospace; font-size: 14px; line-height: 1.5; color: #a6accd; overflow-y: auto; display: flex; }
+        .line-numbers { color: #4b526d; text-align: right; padding-right: 15px; border-right: 1px solid #2a2e3d; margin-right: 15px; user-select: none; }
+        .code-content span.keyword { color: #c792ea; }
+        .code-content span.func { color: #82aaff; }
+        .code-content span.string { color: #c3e88d; }
+        .code-content span.comment { color: #676e95; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <!-- Collapsed Sidebar for Focus Mode -->
+    <aside class="sidebar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 19.5L12 23.5L15 19.5" fill="#f77f00"/>
+                <path d="M12 2C12 2 5 6.5 5 14.5C5 17.5 7 20 7 20L12 18L17 20C17 20 19 17.5 19 14.5C19 6.5 12 2 12 2Z" fill="#9d4edd"/>
+            </svg>
+        </div>
+        <div class="nav-item active">📄</div>
+        <div class="nav-item">🏆</div>
+        <div class="nav-item">⚙️</div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="top-nav">
+            <div style="font-size: 14px; font-weight: 600;">Practice > Arrays > <span style="color: var(--easy-color)">Easy</span></div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <span style="font-size: 13px; color: var(--text-muted);">Auto-saved</span>
+                <div style="width: 30px; height: 30px; border-radius: 50%; background-color: var(--primary);"></div>
+            </div>
+        </header>
+
+        <div class="challenge-container">
+            <!-- Problem Description -->
+            <div class="problem-panel">
+                <h1 class="problem-title">
+                    Concatenation of Array
+                    <span class="difficulty-badge">Easy</span>
+                </h1>
+                
+                <div class="problem-body">
+                    <p>Given an integer array <code>nums</code> of length <code>n</code>, you want to create an array <code>ans</code> of length <code>2n</code> where <code>ans[i] == nums[i]</code> and <code>ans[i + n] == nums[i]</code> for <code>0 <= i < n</code> (0-indexed).</p>
+                    <br>
+                    <p>Specifically, <code>ans</code> is the concatenation of two <code>nums</code> arrays.</p>
+                    <p>Return the array <code>ans</code>.</p>
+                    
+                    <pre>
+<strong>Example 1:</strong>
+Input: nums = [1,2,1]
+Output: [1,2,1,1,2,1]
+Explanation: The array ans is formed as follows:
+- ans = [nums[0],nums[1],nums[2],nums[0],nums[1],nums[2]]
+- ans = [1,2,1,1,2,1]
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Code Editor -->
+            <div class="editor-panel">
+                <div class="editor-toolbar">
+                    <select class="lang-select">
+                        <option>Python 3</option>
+                        <option>JavaScript</option>
+                        <option>C++</option>
+                    </select>
+                    <div class="editor-actions">
+                        <button class="btn-run">▶ Run</button>
+                        <button class="btn-submit">Submit</button>
+                    </div>
+                </div>
+                <div class="code-area">
+                    <div class="line-numbers">
+                        1<br>2<br>3<br>4<br>5
+                    </div>
+                    <div class="code-content">
+<span class="keyword">class</span> <span class="func">Solution</span>:
+    <span class="keyword">def</span> <span class="func">getConcatenation</span>(self, nums: List[int]) -> List[int]:
+        <span class="comment"># Write your code here</span>
+        <span class="keyword">return</span> nums * <span class="string">2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
