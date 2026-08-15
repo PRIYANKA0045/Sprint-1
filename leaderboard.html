@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Leaderboard</title>
+    <style>
+        :root {
+            --bg-main: #0a0c10;
+            --bg-panel: #13161f;
+            --bg-hover: #1e2230;
+            --border-color: #262936;
+            --text-main: #f1f5f9;
+            --text-muted: #8b92a5;
+            --primary: #7b2cbf;
+            --gold: #fbbf24;
+            --silver: #9ca3af;
+            --bronze: #b45309;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; }
+        .logo { display: flex; align-items: center; gap: 10px; padding: 0 20px; font-size: 20px; font-weight: bold; margin-bottom: 30px; color: var(--text-main); text-decoration: none; }
+        .nav-list { list-style: none; }
+        .nav-item { padding: 12px 20px; display: flex; align-items: center; gap: 15px; color: var(--text-muted); font-size: 14px; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .nav-item:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        .nav-item.active { background-color: rgba(123, 44, 191, 0.1); color: var(--text-main); border-left: 3px solid var(--primary); }
+
+        /* Main Content */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .top-nav { height: 60px; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; position: sticky; top: 0; z-index: 10; }
+        .user-controls { display: flex; align-items: center; gap: 20px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background-color: var(--primary); display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
+
+        /* Page Layout */
+        .content { padding: 30px; max-width: 1000px; margin: 0 auto; width: 100%; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .title { font-size: 28px; font-weight: bold; }
+        
+        /* Filters */
+        .filters { display: flex; gap: 5px; background: var(--bg-panel); padding: 5px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .filter-btn { padding: 8px 16px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+        .filter-btn:hover { color: var(--text-main); }
+        .filter-btn.active { background: var(--primary); color: white; }
+
+        /* Podium */
+        .podium-container { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin: 20px 0 50px 0; height: 260px; }
+        .podium-item { display: flex; flex-direction: column; align-items: center; width: 130px; }
+        .podium-avatar { width: 64px; height: 64px; border-radius: 50%; background-color: #2a2d3a; margin-bottom: 10px; border: 3px solid; display: flex; justify-content: center; align-items: center; font-size: 24px; }
+        .podium-name { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+        .podium-xp { color: var(--text-muted); font-size: 12px; margin-bottom: 15px; }
+        
+        .step { width: 100%; border-radius: 12px 12px 0 0; display: flex; justify-content: center; align-items: flex-start; padding-top: 15px; font-size: 28px; font-weight: bold; color: white; }
+        
+        /* Rank Colors and Heights */
+        .rank-1 .podium-avatar { border-color: var(--gold); }
+        .rank-1 .step { height: 160px; background: linear-gradient(to top, #451a03, var(--gold)); }
+        
+        .rank-2 .podium-avatar { border-color: var(--silver); }
+        .rank-2 .step { height: 120px; background: linear-gradient(to top, #1f2937, var(--silver)); }
+        
+        .rank-3 .podium-avatar { border-color: var(--bronze); }
+        .rank-3 .step { height: 90px; background: linear-gradient(to top, #451a03, var(--bronze)); }
+
+        /* Table */
+        .table-container { background-color: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 16px 20px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: var(--bg-hover); }
+        
+        .current-user { background-color: rgba(123, 44, 191, 0.1); border-left: 3px solid var(--primary); }
+        .badge-pill { background: rgba(123, 44, 191, 0.2); color: #d8b4fe; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; border: 1px solid rgba(123, 44, 191, 0.3); }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="index.html" class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 19.5L12 23.5L15 19.5" fill="#f77f00"/>
+                <path d="M10.5 19.5L12 21.5L13.5 19.5" fill="#ffb703"/>
+                <path d="M12 2C12 2 5 6.5 5 14.5C5 17.5 7 20 7 20L12 18L17 20C17 20 19 17.5 19 14.5C19 6.5 12 2 12 2Z" fill="url(#logo-grad)"/>
+                <path d="M5 14.5L2 18V21L7 20" fill="url(#logo-grad)"/>
+                <path d="M19 14.5L22 18V21L17 20" fill="url(#logo-grad)"/>
+                <circle cx="12" cy="11" r="2.5" fill="#13161f" stroke="#f1f5f9" stroke-width="1.5"/>
+                <defs>
+                    <linearGradient id="logo-grad" x1="12" y1="2" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#9d4edd"/><stop offset="1" stop-color="#5b21b6"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            CodeQuest
+        </a>
+        
+        <ul class="nav-list">
+            <a href="dashboard.html" class="nav-item"><li>📚 Courses</li></a>
+            <a href="practice.html" class="nav-item"><li>📄 Practice Problems</li></a>
+            <a href="leaderboard.html" class="nav-item active"><li>🏆 Leaderboard</li></a>
+            <a href="streak.html" class="nav-item"><li>🔥 Streak</li></a>
+            <a href="profile.html" class="nav-item"><li>👤 Profile</li></a>
+            <a href="achievements.html" class="nav-item"><li>🏅 Achievements</li></a>
+            <a href="roadmap.html" class="nav-item"><li>🗺️ Roadmap</li></a>
+            <a href="settings.html" class="nav-item"><li>⚙️ Settings</li></a>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="top-nav">
+            <div style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Leaderboard</div>
+            <div class="user-controls">
+                <div class="avatar">CQ</div>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="header">
+                <h1 class="title">Leaderboard</h1>
+                <div class="filters">
+                    <button class="filter-btn active">Global</button>
+                    <button class="filter-btn">Friends</button>
+                    <button class="filter-btn">Country</button>
+                </div>
+            </div>
+
+            <!-- Podium -->
+            <div class="podium-container">
+                <!-- Rank 2 -->
+                <div class="podium-item rank-2">
+                    <div class="podium-avatar">👩🏻</div>
+                    <div class="podium-name">Sophie</div>
+                    <div class="podium-xp">1,668 XP</div>
+                    <div class="step">2</div>
+                </div>
+                <!-- Rank 1 -->
+                <div class="podium-item rank-1">
+                    <div class="podium-avatar">👨🏽‍🦱</div>
+                    <div class="podium-name">Alex</div>
+                    <div class="podium-xp">2,568 XP</div>
+                    <div class="step">1</div>
+                </div>
+                <!-- Rank 3 -->
+                <div class="podium-item rank-3">
+                    <div class="podium-avatar">👦🏼</div>
+                    <div class="podium-name">Ethan</div>
+                    <div class="podium-xp">1,035 XP</div>
+                    <div class="step">3</div>
+                </div>
+            </div>
+
+            <!-- Ranking Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Rank</th>
+                            <th>User</th>
+                            <th>Experience</th>
+                            <th>Problems Solved</th>
+                            <th>Top Badge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="color: var(--gold); font-weight: bold;">#1</td>
+                            <td>@alex_dev</td>
+                            <td>2,568 XP</td>
+                            <td>145</td>
+                            <td><span class="badge-pill">Master</span></td>
+                        </tr>
+                        <tr>
+                            <td style="color: var(--silver); font-weight: bold;">#2</td>
+                            <td>@sophie_code</td>
+                            <td>1,668 XP</td>
+                            <td>98</td>
+                            <td><span class="badge-pill">Diamond</span></td>
+                        </tr>
+                        <tr>
+                            <td style="color: var(--bronze); font-weight: bold;">#3</td>
+                            <td>@ethan_prog</td>
+                            <td>1,035 XP</td>
+                            <td>76</td>
+                            <td><span class="badge-pill">Platinum</span></td>
+                        </tr>
+                        <tr>
+                            <td>#4</td>
+                            <td>@john_doe</td>
+                            <td>928 XP</td>
+                            <td>64</td>
+                            <td><span class="badge-pill">Gold</span></td>
+                        </tr>
+                        <tr>
+                            <td>#5</td>
+                            <td>@coder_anna</td>
+                            <td>860 XP</td>
+                            <td>59</td>
+                            <td><span class="badge-pill">Gold</span></td>
+                        </tr>
+                        <tr class="current-user">
+                            <td style="font-weight: bold; color: var(--primary);">#127</td>
+                            <td>@code_quester <span style="color: var(--text-muted); font-weight: normal;">(You)</span></td>
+                            <td>4,858 XP</td>
+                            <td>87</td>
+                            <td><span class="badge-pill">Gold</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
