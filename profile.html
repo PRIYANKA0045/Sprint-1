@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Profile</title>
+    <style>
+        :root {
+            --bg-main: #0a0c10;
+            --bg-panel: #13161f;
+            --bg-hover: #1e2230;
+            --border-color: #262936;
+            --text-main: #f1f5f9;
+            --text-muted: #8b92a5;
+            --primary: #7b2cbf;
+            --easy-color: #10b981;
+            --medium-color: #f59e0b;
+            --hard-color: #ef4444;
+            
+            /* Language Colors */
+            --lang-py: #3776ab;
+            --lang-cpp: #00599c;
+            --lang-js: #f7df1e;
+            --lang-java: #b07219;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; }
+        .logo { display: flex; align-items: center; gap: 10px; padding: 0 20px; font-size: 20px; font-weight: bold; margin-bottom: 30px; color: var(--text-main); text-decoration: none; }
+        .nav-list { list-style: none; }
+        .nav-item { padding: 12px 20px; display: flex; align-items: center; gap: 15px; color: var(--text-muted); font-size: 14px; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .nav-item:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        .nav-item.active { background-color: rgba(123, 44, 191, 0.1); color: var(--text-main); border-left: 3px solid var(--primary); }
+
+        /* Main Content */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .top-nav { height: 60px; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; position: sticky; top: 0; z-index: 10; }
+        
+        /* Layout */
+        .content { padding: 30px; max-width: 1000px; margin: 0 auto; width: 100%; }
+        .card { background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        
+        .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-title { font-size: 16px; font-weight: 600; }
+        .link-text { color: var(--primary); font-size: 13px; text-decoration: none; cursor: pointer; }
+        .link-text:hover { text-decoration: underline; }
+
+        /* Profile Top Card */
+        .profile-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
+        .user-info { display: flex; align-items: center; gap: 20px; }
+        .avatar-large { width: 80px; height: 80px; border-radius: 50%; background-color: #2a2d3a; display: flex; justify-content: center; align-items: center; font-size: 32px; border: 2px solid var(--border-color); }
+        .username { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+        .rank-title { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 14px; }
+        
+        /* Top Stats */
+        .top-stats { display: flex; gap: 30px; }
+        .stat-block { text-align: center; }
+        .stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 24px; font-weight: bold; color: var(--text-main); }
+
+        /* XP Progress Bar */
+        .xp-section { margin-top: 10px; }
+        .xp-labels { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; font-weight: 500; }
+        .xp-labels .current { color: var(--easy-color); }
+        .xp-labels .max { color: var(--text-muted); }
+        .progress-bg { height: 6px; background-color: var(--bg-main); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background-color: var(--easy-color); border-radius: 3px; width: 97%; } /* 4858 / 5000 */
+
+        /* About Section */
+        .bio-text { font-size: 14px; line-height: 1.6; color: #d1d5db; }
+
+        /* Badges */
+        .badges-container { display: flex; gap: 15px; }
+        .badge-icon { width: 48px; height: 48px; border-radius: 12px; background-color: rgba(255, 255, 255, 0.05); display: flex; justify-content: center; align-items: center; font-size: 24px; border: 1px solid var(--border-color); }
+
+        /* Languages */
+        .lang-list { display: flex; flex-direction: column; gap: 15px; }
+        .lang-item { display: flex; flex-direction: column; gap: 8px; }
+        .lang-info { display: flex; justify-content: space-between; font-size: 13px; }
+        .lang-name { color: var(--text-main); }
+        .lang-percent { color: var(--text-muted); }
+        .lang-bar-bg { height: 4px; background-color: var(--bg-main); border-radius: 2px; overflow: hidden; }
+        
+        /* Recent Activity */
+        .activity-list { display: flex; flex-direction: column; }
+        .activity-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+        .activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .activity-left { display: flex; align-items: center; gap: 12px; }
+        .activity-icon { font-size: 16px; }
+        .activity-desc { color: var(--text-main); }
+        
+        .diff-badge { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
+        .diff-badge.easy { background-color: rgba(16, 185, 129, 0.1); color: var(--easy-color); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .diff-badge.medium { background-color: rgba(245, 158, 11, 0.1); color: var(--medium-color); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .diff-badge.streak { background-color: rgba(249, 115, 22, 0.1); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.2); }
+        
+        .activity-time { color: var(--text-muted); font-size: 12px; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="index.html" class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 19.5L12 23.5L15 19.5" fill="#f77f00"/>
+                <path d="M10.5 19.5L12 21.5L13.5 19.5" fill="#ffb703"/>
+                <path d="M12 2C12 2 5 6.5 5 14.5C5 17.5 7 20 7 20L12 18L17 20C17 20 19 17.5 19 14.5C19 6.5 12 2 12 2Z" fill="url(#logo-grad)"/>
+                <path d="M5 14.5L2 18V21L7 20" fill="url(#logo-grad)"/>
+                <path d="M19 14.5L22 18V21L17 20" fill="url(#logo-grad)"/>
+                <circle cx="12" cy="11" r="2.5" fill="#13161f" stroke="#f1f5f9" stroke-width="1.5"/>
+                <defs>
+                    <linearGradient id="logo-grad" x1="12" y1="2" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#9d4edd"/><stop offset="1" stop-color="#5b21b6"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            CodeQuest
+        </a>
+        
+        <ul class="nav-list">
+            <a href="dashboard.html" class="nav-item"><li>📚 Courses</li></a>
+            <a href="practice.html" class="nav-item"><li>📄 Practice Problems</li></a>
+            <a href="leaderboard.html" class="nav-item"><li>🏆 Leaderboard</li></a>
+            <a href="streak.html" class="nav-item"><li>🔥 Streak</li></a>
+            <a href="#" class="nav-item active"><li>👤 Profile</li></a>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="top-nav">
+            <div style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Profile</div>
+        </header>
+
+        <main class="content">
+            
+            <!-- Top Profile Card -->
+            <div class="card">
+                <div class="profile-top">
+                    <div class="user-info">
+                        <div class="avatar-large">👨🏻‍💻</div>
+                        <div>
+                            <h1 class="username">@code_quester</h1>
+                            <div class="rank-title">
+                                <span style="color: var(--primary);">🛡️</span> Code Warrior
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="top-stats">
+                        <div class="stat-block">
+                            <div class="stat-label">Problems Solved</div>
+                            <div class="stat-value">87</div>
+                        </div>
+                        <div class="stat-block">
+                            <div class="stat-label">Current Streak</div>
+                            <div class="stat-value">14 days</div>
+                        </div>
+                        <div class="stat-block">
+                            <div class="stat-label">Global Rank</div>
+                            <div class="stat-value">#127</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="xp-section">
+                    <div class="xp-labels">
+                        <span class="current">4,858 XP</span>
+                        <span class="max">5,000 XP</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2-Column Grid -->
+            <div class="grid-2-col">
+                
+                <!-- Left Column -->
+                <div>
+                    <!-- About Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">About</h2>
+                        </div>
+                        <p class="bio-text">
+                            Passionate about solving problems and learning new things every day. Focusing on backend architecture, system design, and competitive programming. Currently preparing for technical interviews.
+                        </p>
+                    </div>
+
+                    <!-- Languages Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Languages</h2>
+                        </div>
+                        <div class="lang-list">
+                            <div class="lang-item">
+                                <div class="lang-info">
+                                    <span class="lang-name">Python</span>
+                                    <span class="lang-percent">68%</span>
+                                </div>
+                                <div class="lang-bar-bg">
+                                    <div style="height: 100%; width: 68%; background-color: var(--lang-py); border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                            <div class="lang-item">
+                                <div class="lang-info">
+                                    <span class="lang-name">C++</span>
+                                    <span class="lang-percent">15%</span>
+                                </div>
+                                <div class="lang-bar-bg">
+                                    <div style="height: 100%; width: 15%; background-color: var(--lang-cpp); border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                            <div class="lang-item">
+                                <div class="lang-info">
+                                    <span class="lang-name">JavaScript</span>
+                                    <span class="lang-percent">10%</span>
+                                </div>
+                                <div class="lang-bar-bg">
+                                    <div style="height: 100%; width: 10%; background-color: var(--lang-js); border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                            <div class="lang-item">
+                                <div class="lang-info">
+                                    <span class="lang-name">Java</span>
+                                    <span class="lang-percent">7%</span>
+                                </div>
+                                <div class="lang-bar-bg">
+                                    <div style="height: 100%; width: 7%; background-color: var(--lang-java); border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div>
+                    <!-- Badges Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Badges</h2>
+                            <a href="#" class="link-text">View all</a>
+                        </div>
+                        <div class="badges-container">
+                            <div class="badge-icon" title="First Steps">🏅</div>
+                            <div class="badge-icon" title="Problem Solver">🧠</div>
+                            <div class="badge-icon" title="Streak Master">🔥</div>
+                            <div class="badge-icon" title="Night Owl">🦉</div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Recent Activity</h2>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-left">
+                                    <span class="activity-icon">✅</span>
+                                    <span class="activity-desc">Solved 2 problems</span>
+                                    <span class="diff-badge easy">Easy</span>
+                                </div>
+                                <span class="activity-time">2h ago</span>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-left">
+                                    <span class="activity-icon">✅</span>
+                                    <span class="activity-desc">Solved 1 problem</span>
+                                    <span class="diff-badge medium">Medium</span>
+                                </div>
+                                <span class="activity-time">1d ago</span>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-left">
+                                    <span class="activity-icon">✅</span>
+                                    <span class="activity-desc">Solved 3 problems</span>
+                                    <span class="diff-badge easy">Easy</span>
+                                </div>
+                                <span class="activity-time">2d ago</span>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-left">
+                                    <span class="activity-icon">🔥</span>
+                                    <span class="activity-desc">Maintained streak</span>
+                                    <span class="diff-badge streak">14 Days</span>
+                                </div>
+                                <span class="activity-time">2d ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
