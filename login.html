@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Login</title>
+    <style>
+        :root {
+            --bg-main: #0b0d13;
+            --bg-card: #151821;
+            --bg-input: #0b0d13;
+            --border-color: #2a2d3a;
+            --primary: #7b2cbf;
+            --primary-hover: #9d4edd;
+            --text-main: #ffffff;
+            --text-muted: #8b92a5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            display: flex;
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            width: 900px;
+            max-width: 95%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            min-height: 600px;
+        }
+
+        .illustration-side {
+            flex: 1;
+            background-color: var(--bg-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .large-rocket {
+            width: 280px;
+            height: 280px;
+            filter: drop-shadow(0 0 40px rgba(123, 44, 191, 0.5));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .form-side {
+            flex: 1;
+            padding: 50px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .forgot-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .primary-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .primary-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 25px 0;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .divider span {
+            padding: 0 10px;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .google-btn:hover {
+            background-color: var(--bg-input);
+        }
+
+        .google-icon {
+            width: 18px;
+            height: 18px;
+            background-color: #fff;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .switch-text {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .switch-text a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
+                max-width: 400px;
+            }
+            .illustration-side {
+                display: none;
+            }
+            .form-side {
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="illustration-side">
+            <svg class="large-rocket" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Rocket Flame -->
+                <path d="M9 19.5L12 23.5L15 19.5" fill="#f77f00"/>
+                <path d="M10.5 19.5L12 21.5L13.5 19.5" fill="#ffb703"/>
+                <!-- Rocket Body -->
+                <path d="M12 2C12 2 5 6.5 5 14.5C5 17.5 7 20 7 20L12 18L17 20C17 20 19 17.5 19 14.5C19 6.5 12 2 12 2Z" fill="url(#large-logo-grad)"/>
+                <!-- Fins -->
+                <path d="M5 14.5L2 18V21L7 20" fill="url(#large-logo-grad)"/>
+                <path d="M19 14.5L22 18V21L17 20" fill="url(#large-logo-grad)"/>
+                <!-- Window (Color matched to auth background) -->
+                <circle cx="12" cy="11" r="2.5" fill="#0b0d13" stroke="#f1f5f9" stroke-width="1.5"/>
+                
+                <defs>
+                    <linearGradient id="large-logo-grad" x1="12" y1="2" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#9d4edd"/>
+                        <stop offset="1" stop-color="#5b21b6"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+
+        <div class="form-side">
+            <h2>Welcome Back!</h2>
+            <p class="subtitle">Login to continue your coding journey</p>
+            
+            <form action="#">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>
+                        Password 
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </label>
+                    <input type="password" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="primary-btn">Login</button>
+            </form>
+            
+            <div class="divider"><span>OR</span></div>
+            
+            <button class="google-btn">
+                <span class="google-icon"></span> Continue with Google
+            </button>
+            
+            <p class="switch-text">Don't have an account? <a href="signup.html">Sign up</a></p>
+        </div>
+    </div>
+
+</body>
+</html>
