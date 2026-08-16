@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Practice Problems</title>
+    <style>
+        :root {
+            --bg-main: #0a0c10;
+            --bg-panel: #13161f;
+            --bg-hover: #1e2230;
+            --border-color: #262936;
+            --text-main: #f1f5f9;
+            --text-muted: #8b92a5;
+            --primary: #7b2cbf;
+            --easy-color: #10b981;
+            --medium-color: #f59e0b;
+            --hard-color: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; }
+        .logo { display: flex; align-items: center; gap: 10px; padding: 0 20px; font-size: 20px; font-weight: bold; margin-bottom: 30px; color: var(--text-main); text-decoration: none; }
+        .nav-list { list-style: none; }
+        .nav-item { padding: 12px 20px; display: flex; align-items: center; gap: 15px; color: var(--text-muted); font-size: 14px; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .nav-item:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        .nav-item.active { background-color: rgba(123, 44, 191, 0.1); color: var(--text-main); border-left: 3px solid var(--primary); }
+
+        /* Main Content */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        
+        /* Top Nav */
+        .top-nav { height: 60px; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; position: sticky; top: 0; z-index: 10; }
+        .user-controls { display: flex; align-items: center; gap: 20px; }
+        .streak-badge { display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 600; color: #f97316; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background-color: var(--primary); display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; }
+
+        /* Page Content */
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .page-header { margin-bottom: 25px; }
+        .page-title { font-size: 28px; font-weight: bold; margin-bottom: 10px; }
+        .page-subtitle { color: var(--text-muted); font-size: 14px; }
+
+        /* Toolbar & Filters */
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .filters-group { display: flex; gap: 15px; }
+        
+        .filter-select { background-color: var(--bg-panel); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px 15px; border-radius: 8px; font-size: 13px; outline: none; cursor: pointer; appearance: none; min-width: 120px; }
+        .filter-select:hover { border-color: var(--text-muted); }
+
+        .search-box { background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 15px; display: flex; align-items: center; width: 300px; }
+        .search-box input { background: transparent; border: none; color: var(--text-main); outline: none; width: 100%; font-size: 13px; margin-left: 10px; }
+        
+        .action-btns { display: flex; gap: 10px; }
+        .btn-random { background-color: rgba(123, 44, 191, 0.1); color: var(--primary); border: 1px solid var(--primary); padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-random:hover { background-color: var(--primary); color: white; }
+
+        /* Problems Table */
+        .table-container { background-color: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 16px 20px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 16px 20px; font-size: 14px; border-bottom: 1px solid var(--border-color); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: var(--bg-hover); }
+
+        .problem-title { color: var(--text-main); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        .problem-title:hover { color: var(--primary); }
+        
+        .tag-pill { display: inline-block; background-color: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); color: var(--text-muted); font-size: 11px; padding: 3px 8px; border-radius: 12px; margin-right: 5px; }
+
+        /* Status & Star Icons */
+        .status-checkbox { width: 18px; height: 18px; border: 2px solid var(--text-muted); border-radius: 4px; display: inline-block; cursor: pointer; position: relative; transition: all 0.2s; }
+        .status-checkbox.checked { background-color: var(--easy-color); border-color: var(--easy-color); }
+        .status-checkbox.checked::after { content: '✓'; color: white; font-size: 12px; position: absolute; top: -1px; left: 2px; font-weight: bold; }
+
+        .star-icon { cursor: pointer; font-size: 18px; user-select: none; transition: transform 0.2s; }
+        .star-icon:hover { transform: scale(1.2); }
+        
+        .diff-easy { color: var(--easy-color); font-weight: 500; }
+        .diff-medium { color: var(--medium-color); font-weight: 500; }
+        .diff-hard { color: var(--hard-color); font-weight: 500; }
+
+        .acceptance-rate { color: #d1d5db; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="index.html" class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 19.5L12 23.5L15 19.5" fill="#f77f00"/>
+                <path d="M10.5 19.5L12 21.5L13.5 19.5" fill="#ffb703"/>
+                <path d="M12 2C12 2 5 6.5 5 14.5C5 17.5 7 20 7 20L12 18L17 20C17 20 19 17.5 19 14.5C19 6.5 12 2 12 2Z" fill="url(#logo-grad)"/>
+                <path d="M5 14.5L2 18V21L7 20" fill="url(#logo-grad)"/>
+                <path d="M19 14.5L22 18V21L17 20" fill="url(#logo-grad)"/>
+                <circle cx="12" cy="11" r="2.5" fill="#13161f" stroke="#f1f5f9" stroke-width="1.5"/>
+                <defs>
+                    <linearGradient id="logo-grad" x1="12" y1="2" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#9d4edd"/><stop offset="1" stop-color="#5b21b6"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            CodeQuest
+        </a>
+        
+        <ul class="nav-list">
+            <a href="dashboard.html" class="nav-item"><li>📚 Courses</li></a>
+            <a href="practice.html" class="nav-item active"><li>📄 Practice Problems</li></a>
+            <a href="leaderboard.html" class="nav-item"><li>🏆 Leaderboard</li></a>
+            <a href="#" class="nav-item"><li>🔥 Streak</li></a>
+            <a href="#" class="nav-item"><li>👤 Profile</li></a>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="top-nav">
+            <div style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Practice</div>
+            <div class="user-controls">
+                <div class="streak-badge">🔥 14</div>
+                <div class="avatar">CQ</div>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="page-header">
+                <h1 class="page-title">Practice Problems</h1>
+                <p class="page-subtitle">Browse, filter, and solve coding challenges to level up your skills.</p>
+            </div>
+
+            <div class="toolbar">
+                <div class="filters-group">
+                    <select class="filter-select">
+                        <option value="all">All Difficulties</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                    
+                    <select class="filter-select">
+                        <option value="all">Status</option>
+                        <option value="todo">Todo</option>
+                        <option value="solved">Solved</option>
+                        <option value="attempted">Attempted</option>
+                    </select>
+
+                    <select class="filter-select">
+                        <option value="all">Tags</option>
+                        <option value="arrays">Arrays</option>
+                        <option value="strings">Strings</option>
+                        <option value="dp">Dynamic Programming</option>
+                        <option value="graphs">Graphs</option>
+                    </select>
+                </div>
+
+                <div class="action-btns">
+                    <div class="search-box">
+                        <span style="color: var(--text-muted);">🔍</span>
+                        <input type="text" placeholder="Search problems...">
+                    </div>
+                    <button class="btn-random">🎲 Pick One</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Status</th>
+                            <th style="width: 60px;">Star</th>
+                            <th>Title</th>
+                            <th style="width: 150px;">Difficulty</th>
+                            <th style="width: 150px;">Acceptance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="practice-list">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Problem Data
+        const problems = [
+            { id: 1, title: "Two Sum", tags: ["Arrays", "Hash Table"], diff: "Easy", acceptance: "51.2%", status: true, star: true },
+            { id: 2, title: "Add Two Numbers", tags: ["Linked List", "Math"], diff: "Medium", acceptance: "41.8%", status: true, star: false },
+            { id: 3, title: "Longest Substring Without Repeating Characters", tags: ["Hash Table", "Sliding Window"], diff: "Medium", acceptance: "34.1%", status: false, star: true },
+            { id: 4, title: "Median of Two Sorted Arrays", tags: ["Arrays", "Binary Search"], diff: "Hard", acceptance: "39.5%", status: false, star: false },
+            { id: 5, title: "Longest Palindromic Substring", tags: ["Strings", "DP"], diff: "Medium", acceptance: "33.7%", status: false, star: false },
+            { id: 15, title: "3Sum", tags: ["Arrays", "Two Pointers"], diff: "Medium", acceptance: "34.4%", status: true, star: true },
+            { id: 20, title: "Valid Parentheses", tags: ["Strings", "Stack"], diff: "Easy", acceptance: "40.3%", status: true, star: false },
+            { id: 42, title: "Trapping Rain Water", tags: ["Arrays", "Two Pointers"], diff: "Hard", acceptance: "61.0%", status: false, star: true },
+        ];
+
+        const tbody = document.getElementById('practice-list');
+
+        function renderProblems() {
+            tbody.innerHTML = '';
+            problems.forEach(prob => {
+                const tr = document.createElement('tr');
+                
+                // Helper to generate tag HTML
+                const tagsHtml = prob.tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('');
+                
+                // Helper for difficulty class
+                const diffClass = `diff-${prob.diff.toLowerCase()}`;
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="status-checkbox ${prob.status ? 'checked' : ''}" onclick="this.classList.toggle('checked')"></div>
+                    </td>
+                    <td>
+                        <span class="star-icon" style="color: ${prob.star ? 'var(--medium-color)' : 'var(--text-muted)'}" 
+                              onclick="this.style.color = this.style.color === 'var(--text-muted)' ? 'var(--medium-color)' : 'var(--text-muted)'">
+                            ${prob.star ? '⭐' : '☆'}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="margin-bottom: 5px;">
+                            <a href="challenge.html" class="problem-title">${prob.id}. ${prob.title}</a>
+                        </div>
+                        <div>${tagsHtml}</div>
+                    </td>
+                    <td class="${diffClass}">${prob.diff}</td>
+                    <td class="acceptance-rate">${prob.acceptance}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Initial render
+        renderProblems();
+    </script>
+</body>
+</html>
